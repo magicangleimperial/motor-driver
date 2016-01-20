@@ -15,7 +15,6 @@ class GUIMainWindow(QtWidgets.QMainWindow):
         self.ui.pushButton_motoron.clicked.connect(self.on)
         self.ui.pushButton_motoroff.clicked.connect(self.off)
         self.ui.pushButton_go.clicked.connect(self.move_pos)
-
         self.motor = Motor('192.168.39.5', 2317)
         self.on = True
         Thread(target=self.read_pos).start()
