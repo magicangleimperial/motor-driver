@@ -1,58 +1,81 @@
-import sys
-from os.path import dirname, realpath
 from time import sleep
 from binascii import crc32
 from threading import Thread
 from struct import pack, unpack
-from PyQt5 import QtWidgets
-from PyQt5.uic import loadUi
 from socket import socket, AF_INET, SOCK_STREAM
+from kivy.app import App
+from kivy.uix.boxlayout import BoxLayout
+from kivy import config
+config.Config.set('input', 'mouse', 'mouse,disable_multitouch')
 
 
-class GUIMainWindow(QtWidgets.QMainWindow):
-    # Main class with GUI signals and slots
-    def __init__(self, parent=None):
-        super().__init__(parent)
-        # This file contains the GUI, use QtDesigner to change it
-        self.ui = loadUi(dirname(realpath(__file__)) + '/main.ui', self)
-        # When clicked, triggers a specific function
-        self.ui.pushButton_motoron.clicked.connect(self.on)
-        self.ui.pushButton_motoroff.clicked.connect(self.off)
-        self.ui.pushButton_go.clicked.connect(self.move_pos)
-        try:
-            # Create a motor class, with this specific IP
-            self.motor = Motor('192.168.39.5', 2317)
-            self.on = True
-            Thread(target=self.read_pos).start()
-        except:
-            # if it fails, print something
-            print('No motor connected')
-        finally:
-            pass
+class MainScreen(BoxLayout):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.motor = None
+        self.motor_connected = False
+        self.thread_on = True
+        Thread(target=self.get_position).start()
+
+    def get_position(self):
+        while self.thread_on:
+            if not self.motor_connected:
+                try:
+                    self.motor = Motor('192.168.39.5', 2317)
+                    self.motor_connected = True
+                    self.ids.device.text = 'Status : Device connected.'
+                    self.ids.btn_on.disabled = False
+                except:
+                    self.ids.device.text = 'Status : Device not connected.'
+                    self.on_or_off(False)
+                    self.ids.btn_on.disabled = True
+                    self.motor_connected = False
+                sleep(2)
+            else:
+                try:
+                    pos = self.motor.motor_read_pos()
+                    self.ids.cur_pos.text = str(pos)
+                except:
+                    self.motor_connected = False
+                sleep(0.5)
+        return 0
+
+    def on_or_off(self, on_off):
+        self.ids.btn_on.disabled = on_off
+        self.ids.btn_off.disabled = not on_off
+        self.ids.btn_pos.disabled = not on_off
 
     def on(self):
-        # Call the motorcontrol_on function in motor class
         self.motor.motorcontrol_on()
+        self.on_or_off(True)
 
     def off(self):
         self.motor.motorcontrol_off()
+        self.on_or_off(False)
 
-    def move_pos(self):
-        self.motor.motor_move_pos(int(self.ui.doubleSpinBox_targetpos.value()))
+    def go_to_position(self):
+        pos = int(self.ids.input_position.text)
+        if -100000000 <= pos <= 100000000:
+            self.motor.motor_move_pos(pos)
 
-    def read_pos(self):
-        # Read position every 500 ms and print it in a spinbox
-        while self.on:
-            pos = self.motor.motor_read_pos()
-            self.ui.doubleSpinBox_currentpos.setValue(pos)
-            sleep(0.5)
+    def set_speed(self):
+        print('set speed')
 
-        return 0
 
-    def closeEvent(self, event):
-        # When window is closed, close the IP connexion
-        self.on = False
-        self.motor.s.close()
+class MainApp(App):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+    def build(self):
+        self.root = MainScreen()
+        return self.root
+
+    def on_stop(self):
+        self.root.thread_on = False
+        try:
+            self.root.motor.s.close()
+        except:
+            pass
 
 
 class Motor(object):
@@ -127,9 +150,7 @@ class Motor(object):
 
         return data
 
-# Excecute script when file is excecuted
-if __name__ == '__main__':
-    app = QtWidgets.QApplication(sys.argv)
-    myapp = GUIMainWindow()
-    myapp.show()
-    sys.exit(app.exec_())
+
+if __name__ == "__main__":
+    app = MainApp()
+    app.run()
