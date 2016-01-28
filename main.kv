@@ -67,22 +67,21 @@
 			size_hint_y: None
 			height: 30
 			orientation: 'horizontal'
-			Button:
+			Label:
 				id: device
 				text: 'Status : Device not connected.'
-				background_color: 0.3, 0.3, 0.3, 1
-				on_press: root.shift_screen()
 
 
 
 <MainScreen>
 	orientation: 'vertical'
 	AnchorLayout:
-		Image:
+		IconButton:
 			size_hint_x: None
 			size_hint_y: None
 		    width: 300
 			height: 300
 			source: 'yukondrive.jpg'
+			on_press: root.shift_screen()
 	ScreenManager:
 		id: rootscreen

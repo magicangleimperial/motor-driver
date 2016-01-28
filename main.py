@@ -4,37 +4,38 @@ from threading import Thread
 from struct import pack, unpack
 from socket import socket, AF_INET, SOCK_STREAM
 from kivy.app import App
+from kivy.uix.behaviors import ButtonBehavior
 from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.image import Image
 from kivy.uix.screenmanager import Screen
 from kivy import config
 config.Config.set('input', 'mouse', 'mouse,disable_multitouch')
 
 
+class IconButton(ButtonBehavior, Image):
+    # A class to have an image which behave like a button
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+
 class MotorScreen(Screen):
-    def __init__(self, ip=None, name=None, **kwargs):
-        super(MotorScreen, self).__init__(**kwargs)
-        self.name = name
+    def __init__(self, ip=None, **kwargs):
+        super().__init__(**kwargs)
         # self.motor contains the class to talk to the motor through tcp/ip
         self.motor = Motor_TCPIP(ip, 2317)
         #   Try to connect
         try:
             self.motor.open_socket()
-            self.ids.device.text = name + ' Status : Device connected.'
+            self.ids.device.text = self.name + ' Status : Connected.'
             self.ids.btn_on.disabled = False
             # thread_on is just here to close properly the thread when window
             # is closed
             self.thread_on = True
             Thread(target=self.get_position).start()
         except:
-            self.ids.device.text = name + ' Status : Device not connected.'
+            self.ids.device.text = self.name + ' Status : Not connected.'
             self.on_or_off(False)
             self.ids.btn_on.disabled = True
-
-    def shift_screen(self):
-        if self.name == 'Motor1':
-            self.manager.current = 'Motor2'
-        else:
-            self.manager.current = 'Motor1'
 
     def get_position(self):
         # This loop reads position if the motor is on
@@ -84,6 +85,7 @@ class MotorScreen(Screen):
 
 
 class MainScreen(BoxLayout):
+    # The main screen, which contains 2 sub_screens for 2 motors
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         screen = MotorScreen(ip='192.168.39.5', name='Motor1')
@@ -91,8 +93,12 @@ class MainScreen(BoxLayout):
         screen = MotorScreen(ip='192.168.39.6', name='Motor2')
         self.ids.rootscreen.add_widget(screen)
 
+    def shift_screen(self):
+        self.ids.rootscreen.current = self.ids.rootscreen.next()
+
 
 class MainApp(App):
+    # Main App class, see Kivy documentation for details
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
@@ -101,6 +107,7 @@ class MainApp(App):
         return self.root
 
     def on_stop(self):
+        # Close connexion when app is closed
         screen1 = self.root.ids.rootscreen.get_screen('Motor1')
         screen2 = self.root.ids.rootscreen.get_screen('Motor2')
         try:
@@ -119,7 +126,6 @@ class MainApp(App):
 
 class Motor_TCPIP(object):
     def __init__(self, tcp_ip, tcp_port):
-        # Open the connexion
         self.buffer = 2048
         self.tcp_ip = tcp_ip
         self.tcp_port = tcp_port
@@ -127,9 +133,11 @@ class Motor_TCPIP(object):
         self.s.settimeout(1)
 
     def open_socket(self):
+        # Open the connexion
         self.s.connect((self.tcp_ip, self.tcp_port))
 
     def close_socket(self):
+        # Close the connexion
         self.s.shutdown(2)
         self.s.close()
 
