@@ -82,6 +82,6 @@
 		    width: 300
 			height: 300
 			source: 'yukondrive.jpg'
-			on_press: root.shift_screen()
+			on_press: root.ids.rootscreen.current = root.ids.rootscreen.next()
 	ScreenManager:
 		id: rootscreen

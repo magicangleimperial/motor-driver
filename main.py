@@ -93,9 +93,6 @@ class MainScreen(BoxLayout):
         screen = MotorScreen(ip='192.168.39.6', name='Motor2')
         self.ids.rootscreen.add_widget(screen)
 
-    def shift_screen(self):
-        self.ids.rootscreen.current = self.ids.rootscreen.next()
-
 
 class MainApp(App):
     # Main App class, see Kivy documentation for details
