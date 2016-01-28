@@ -1,3 +1,80 @@
+<MotorScreen>
+	BoxLayout:
+		orientation: 'vertical'
+		BoxLayout:
+			size_hint_y: None
+			height: 50
+			orientation: 'horizontal'
+			Button:
+				id: btn_on
+				text: "ON"
+				background_color: 0.3, 0.3, 0.3, 1
+				on_press: root.on()
+				disabled: True
+			Button:
+				id: btn_off
+				text: "OFF"
+				background_color: 0.3, 0.3, 0.3, 1
+				on_press: root.off()
+				disabled: True
+		BoxLayout:
+			size_hint_y: None
+			height: 50
+			orientation: 'horizontal'
+			TextInput:
+				input_filter: 'int'
+				id: input_position
+				padding: [10, (self.height - self.line_height) / 2]
+				text: "0"
+				val_min: -100000000
+				val_max: 100000000
+			Button:
+				id: btn_pos
+				text: "Go To Position"
+				background_color: 0.3, 0.3, 0.3, 1
+				on_press: root.go_to_position()
+				disabled: True
+		BoxLayout:
+			size_hint_y: None
+			height: 50
+			orientation: 'horizontal'
+			TextInput:
+				input_filter: 'int'
+				id: input_speed
+				padding: [10, (self.height - self.line_height) / 2]
+				text: "0"
+				val_min: 1
+				val_max: 300
+			Button:
+				id: btn_speed
+				text: "Set Speed"
+				background_color: 0.3, 0.3, 0.3, 1
+				on_press: root.set_speed()
+				disabled: True
+		BoxLayout:
+			size_hint_y: None
+			height: 50
+			orientation: 'horizontal'
+			Label:
+				id: cur_pos
+				markup: True
+				text: "[b]Current Position [color=#008000]0[/color] ?[/b]"
+			Label:
+				id: cur_speed
+				markup: True
+				text: "[b]Current Speed [color=#008000]0[/color] ?[/b]"
+		BoxLayout:
+			size_hint_y: None
+			height: 30
+			orientation: 'horizontal'
+			Button:
+				id: device
+				text: 'Status : Device not connected.'
+				background_color: 0.3, 0.3, 0.3, 1
+				on_press: root.shift_screen()
+
+
+
 <MainScreen>
 	orientation: 'vertical'
 	AnchorLayout:
@@ -7,68 +84,5 @@
 		    width: 300
 			height: 300
 			source: 'yukondrive.jpg'
-    BoxLayout:
-    	size_hint_y: None
-		height: 50
-    	orientation: 'horizontal'
-		Button:
-			id: btn_on
-			text: "ON"
-			background_color: 0.3, 0.3, 0.3, 1
-			on_press: root.on()
-		Button:
-			id: btn_off
-			text: "OFF"
-			background_color: 0.3, 0.3, 0.3, 1
-			on_press: root.off()
-	BoxLayout:
-    	size_hint_y: None
-		height: 50
-    	orientation: 'horizontal'
-		TextInput:
-			input_filter: 'int'
-			id: input_position
-			padding: [10, (self.height - self.line_height) / 2]
-			text: "0"
-			val_min: -100000000
-			val_max: 100000000
-		Button:
-			id: btn_pos
-			text: "Go To Position"
-			background_color: 0.3, 0.3, 0.3, 1
-			on_press: root.go_to_position()
-	BoxLayout:
-    	size_hint_y: None
-		height: 50
-    	orientation: 'horizontal'
-		TextInput:
-			input_filter: 'int'
-			id: input_speed
-			padding: [10, (self.height - self.line_height) / 2]
-			text: "0"
-			val_min: 1
-			val_max: 300
-		Button:
-			id: btn_speed
-			text: "Set Speed"
-			background_color: 0.3, 0.3, 0.3, 1
-			on_press: root.set_speed()
-	BoxLayout:
-    	size_hint_y: None
-		height: 50
-    	orientation: 'horizontal'
-		Label:
-			id: cur_pos
-			markup: True
-			text: "[b]Current Position [color=#008000]0[/color] ?[/b]"
-		Label:
-			id: cur_speed
-			markup: True
-			text: "[b]Current Speed [color=#008000]0[/color] ?[/b]"
-	BoxLayout:
-    	size_hint_y: None
-		height: 30
-    	orientation: 'horizontal'
-		Label:
-			id: device
-			text: 'Status : Device not connected.'
+	ScreenManager:
+		id: rootscreen
