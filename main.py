@@ -11,6 +11,12 @@ from kivy.uix.screenmanager import Screen
 from kivy import config
 config.Config.set('input', 'mouse', 'mouse,disable_multitouch')
 
+'''
+Just note that all GUI instructions are cointained into main.kv, as well as
+some parameters like IP adresses. Read Kivy documentation to learn about kv
+language.
+'''
+
 
 class IconButton(ButtonBehavior, Image):
     # A class to have an image which behave like a button
@@ -23,7 +29,8 @@ class MotorScreen(Screen):
         super().__init__(**kwargs)
         # self.motor contains the class to talk to the motor through tcp/ip
         self.motor = Motor_TCPIP(ip, 2317)
-        #   Try to connect
+
+    def try_to_connect(self):
         try:
             self.motor.open_socket()
             self.ids.device.text = self.name + ' Status : Connected.'
@@ -88,10 +95,8 @@ class MainScreen(BoxLayout):
     # The main screen, which contains 2 sub_screens for 2 motors
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        screen = MotorScreen(ip='192.168.39.5', name='Motor1')
-        self.ids.rootscreen.add_widget(screen)
-        screen = MotorScreen(ip='192.168.39.6', name='Motor2')
-        self.ids.rootscreen.add_widget(screen)
+        self.ids.motor1.try_to_connect()
+        self.ids.motor2.try_to_connect()
 
 
 class MainApp(App):
@@ -122,6 +127,7 @@ class MainApp(App):
 
 
 class Motor_TCPIP(object):
+    # Class to communicate with the motor
     def __init__(self, tcp_ip, tcp_port):
         self.buffer = 2048
         self.tcp_ip = tcp_ip
