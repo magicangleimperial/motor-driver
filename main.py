@@ -27,8 +27,6 @@ class IconButton(ButtonBehavior, Image):
 class MotorScreen(Screen):
     def __init__(self, ip=None, **kwargs):
         super().__init__(**kwargs)
-        # self.motor contains the class to talk to the motor through tcp/ip
-        self.motor = Motor_TCPIP(ip, 2317)
 
     def try_to_connect(self):
         try:
@@ -95,6 +93,8 @@ class MainScreen(BoxLayout):
     # The main screen, which contains 2 sub_screens for 2 motors
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self.ids.motor1.motor = Motor_TCPIP('192.168.39.5', 2317)
+        self.ids.motor2.motor = Motor_TCPIP('192.168.39.6', 2317)
         self.ids.motor1.try_to_connect()
         self.ids.motor2.try_to_connect()
 
